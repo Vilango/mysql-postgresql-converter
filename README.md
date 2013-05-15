@@ -1,3 +1,15 @@
+
+Disabled the sequence and table generation so it can be used to port a rails app.
+
+Steps: 
+  - Create new DB
+  - rake db:migrate  # Create Schema  
+  - convert & import data
+      python db_converter.py dbdata.mysql dbdata.psql
+      psql -U user -d database_name -h 127.0.0.1 -f dbdata.psql
+      
+
+
 MySQL to PostgreSQL Converter
 =============================
 
