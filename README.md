@@ -5,8 +5,8 @@ Steps:
   - Create new DB
   - rake db:migrate  # Create Schema  
   - convert & import data
-      python db_converter.py dbdata.mysql dbdata.psql
-      psql -U user -d database_name -h 127.0.0.1 -f dbdata.psql
+      - python db_converter.py dbdata.mysql dbdata.psql
+      - psql -U user -d database_name -h 127.0.0.1 -f dbdata.psql
       
 
 
