@@ -53,12 +53,12 @@ def parse(input_filename, output_filename):
     output.write("SET escape_string_warning=off;\n")
     output.write("SET CONSTRAINTS ALL DEFERRED;\n\n")
     
-    output.write("ALTER TABLE \"apps_campaign_users\" ALTER COLUMN \"agb\" DROP DEFAULT, ALTER COLUMN \"agb\" TYPE int4 USING CAST(\"agb\" as int4);\n")
-    output.write("ALTER TABLE \"apps_campaign_users\" ALTER COLUMN \"marketing\" DROP DEFAULT, ALTER COLUMN \"marketing\" TYPE int4 USING CAST(\"marketing\" as int4);\n")
-    output.write("ALTER TABLE \"bundles\" ALTER COLUMN \"demo_mode\" DROP DEFAULT, ALTER COLUMN \"demo_mode\" TYPE int4 USING CAST(\"demo_mode\" as int4);\n")
-    output.write("ALTER TABLE \"vcps\" ALTER COLUMN \"imported\" DROP DEFAULT, ALTER COLUMN \"imported\" TYPE int4 USING CAST(\"imported\" as int4);\n\n")
+    output.write("--ALTER TABLE \"apps_campaign_users\" ALTER COLUMN \"agb\" DROP DEFAULT, ALTER COLUMN \"agb\" TYPE int4 USING CAST(\"agb\" as int4);\n")
+    #output.write("ALTER TABLE \"apps_campaign_users\" ALTER COLUMN \"marketing\" DROP DEFAULT, ALTER COLUMN \"marketing\" TYPE int4 USING CAST(\"marketing\" as int4);\n")
+    #output.write("ALTER TABLE \"bundles\" ALTER COLUMN \"demo_mode\" DROP DEFAULT, ALTER COLUMN \"demo_mode\" TYPE int4 USING CAST(\"demo_mode\" as int4);\n")
+    #output.write("ALTER TABLE \"vcps\" ALTER COLUMN \"imported\" DROP DEFAULT, ALTER COLUMN \"imported\" TYPE int4 USING CAST(\"imported\" as int4);\n\n")
 
-    output.write("DELETE FROM \"audio_speeds\";\n\n")
+    output.write("--DELETE FROM \"audio_speeds\";\n\n")
     
 
     for i, line in enumerate(input_fh):
@@ -90,13 +90,13 @@ def parse(input_filename, output_filename):
           num_inserts += 1
           
         # # Outside of anything handling
-        # if current_table is None:
+        if current_table is None:
         #     # Start of a table creation statement?
-        #     if line.startswith("CREATE TABLE"):
-        #         current_table = line.split('"')[1]
+            if line.startswith("CREATE TABLE"):
+                current_table = line.split('"')[1]
         #         output.write("CREATE TABLE \"%s\" (\n" % current_table)
-        #         tables[current_table] = {"columns": []}
-        #         creation_lines = []
+                tables[current_table] = {"columns": []}
+                creation_lines = []
         #     # Inserting data into a table?
         #     elif line.startswith("INSERT INTO"):
         #         output.write(line.encode("utf8").replace("'0000-00-00 00:00:00'", "NULL") + "\n")
@@ -105,11 +105,11 @@ def parse(input_filename, output_filename):
         #     else:
         #         print "\n ! Unknown line in main body: %s" % line
         # 
-        # # Inside-create-statement handling
-        # else:
-        #     # Is it a column?
-        #     if line.startswith('"'):
-        #         useless, name, definition = line.strip(",").split('"',2)
+        # Inside-create-statement handling
+        else:
+            # Is it a column?
+            if line.startswith('"'):
+                useless, name, definition = line.strip(",").split('"',2)
         #         try:
         #             type, extra = definition.strip().split(" ", 1)
         #         except ValueError:
@@ -142,13 +142,12 @@ def parse(input_filename, output_filename):
         #             type = "double precision"
         #         if final_type:
         #             cast_lines.append("ALTER TABLE \"%s\" ALTER COLUMN \"%s\" DROP DEFAULT, ALTER COLUMN \"%s\" TYPE %s USING CAST(\"%s\" as %s)" % (current_table, name, name, final_type, name, final_type))
-        #         # ID fields need sequences
-        #         
-        #         # We do not need sequences when porting RAILS
-        #         #if name == "id":
-        #         #    sequence_lines.append("CREATE SEQUENCE %s_id_seq" % (current_table))
-        #         #    sequence_lines.append("SELECT setval('%s_id_seq', max(id)) FROM %s" % (current_table, current_table))
-        #         #    sequence_lines.append("ALTER TABLE \"%s\" ALTER COLUMN \"id\" SET DEFAULT nextval('%s_id_seq')" % (current_table, current_table))
+                # ID fields need sequences
+                if name == "id":
+                   # We do not need sequences when porting RAILS
+                   #sequence_lines.append("CREATE SEQUENCE %s_id_seq" % (current_table))
+                   sequence_lines.append("SELECT setval('%s_id_seq', max(id)) FROM %s" % (current_table, current_table))
+                   sequence_lines.append("ALTER TABLE \"%s\" ALTER COLUMN \"id\" SET DEFAULT nextval('%s_id_seq')" % (current_table, current_table))
         #         
         #         # Record it
         #         creation_lines.append('"%s" %s %s' % (name, type, extra))
@@ -163,12 +162,12 @@ def parse(input_filename, output_filename):
         #         creation_lines.append("UNIQUE (%s)" % line.split("(")[1].split(")")[0])
         #     elif line.startswith("KEY"):
         #         pass
-        #     # Is it the end of the table?
-        #     elif line == ");":
-        #         for i, line in enumerate(creation_lines):
-        #             output.write("    %s%s\n" % (line, "," if i != (len(creation_lines) - 1) else ""))
-        #         output.write(');\n\n')
-        #         current_table = None
+            # Is it the end of the table?
+            elif line == ");":
+                for i, line in enumerate(creation_lines):
+                    output.write("    %s%s\n" % (line, "," if i != (len(creation_lines) - 1) else ""))
+                output.write(');\n\n')
+                current_table = None
         #     # ???
         #     else:
         #         print "\n ! Unknown line inside table creation: %s" % line
@@ -176,10 +175,10 @@ def parse(input_filename, output_filename):
 
 
     output.write("\n\n");
-    output.write("ALTER TABLE \"apps_campaign_users\" ALTER COLUMN \"agb\" DROP DEFAULT, ALTER COLUMN \"agb\" TYPE boolean USING CAST(\"agb\" as boolean);\n")
-    output.write("ALTER TABLE \"apps_campaign_users\" ALTER COLUMN \"marketing\" DROP DEFAULT, ALTER COLUMN \"marketing\" TYPE boolean USING CAST(\"marketing\" as boolean);\n")
-    output.write("ALTER TABLE \"bundles\" ALTER COLUMN \"demo_mode\" DROP DEFAULT, ALTER COLUMN \"demo_mode\" TYPE boolean USING CAST(\"demo_mode\" as boolean);\n")
-    output.write("ALTER TABLE \"vcps\" ALTER COLUMN \"imported\" DROP DEFAULT, ALTER COLUMN \"imported\" TYPE boolean USING CAST(\"imported\" as boolean);\n")
+    output.write("--ALTER TABLE \"apps_campaign_users\" ALTER COLUMN \"agb\" DROP DEFAULT, ALTER COLUMN \"agb\" TYPE boolean USING CAST(\"agb\" as boolean);\n")
+    #output.write("ALTER TABLE \"apps_campaign_users\" ALTER COLUMN \"marketing\" DROP DEFAULT, ALTER COLUMN \"marketing\" TYPE boolean USING CAST(\"marketing\" as boolean);\n")
+    #output.write("ALTER TABLE \"bundles\" ALTER COLUMN \"demo_mode\" DROP DEFAULT, ALTER COLUMN \"demo_mode\" TYPE boolean USING CAST(\"demo_mode\" as boolean);\n")
+    #output.write("ALTER TABLE \"vcps\" ALTER COLUMN \"imported\" DROP DEFAULT, ALTER COLUMN \"imported\" TYPE boolean USING CAST(\"imported\" as boolean);\n")
 
 
     # Finish file
@@ -197,10 +196,10 @@ def parse(input_filename, output_filename):
     # for line in foreign_key_lines:
     #     output.write("%s;\n" % line)
     # 
-    # # Write sequences out
-    # output.write("\n-- Sequences --\n")
-    # for line in sequence_lines:
-    #     output.write("%s;\n" % line)
+    # Write sequences out
+    output.write("\n-- Sequences --\n")
+    for line in sequence_lines:
+        output.write("%s;\n" % line)
 
     # Finish file
     output.write("\n")
